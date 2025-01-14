@@ -1,25 +1,83 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import axios from 'axios';
 
-function App() {
+const CitaForm = () => {
+  const [nombre, setNombre] = useState('');
+  const [fecha, setFecha] = useState('');
+  const [hora, setHora] = useState('');
+  const [motivo, setMotivo] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Crear un objeto con los datos del formulario
+    const cita = {
+      nombre,
+      fecha,
+      hora,
+      motivo,
+    };
+
+    try {
+      // Enviar los datos al backend con una solicitud POST
+      const response = await axios.post(
+        'http://localhost:5000/api/citas',
+        cita
+      );
+
+      // Ver respuesta del backend
+      console.log('Cita creada:', response.data);
+
+      // Mostrar mensaje de éxito
+      alert('Cita creada con éxito');
+
+      // Limpiar el formulario
+      setNombre('');
+      setFecha('');
+      setHora('');
+      setMotivo('');
+    } catch (error) {
+      console.error('Hubo un error al crear la cita:', error);
+      alert('Error al crear la cita');
+    }
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <form onSubmit={handleSubmit}>
+      <div>
+        <label>Nombre:</label>
+        <input
+          type="text"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+          required
+        />
+      </div>
+      <div>
+        <label>Fecha:</label>
+        <input
+          type="date"
+          value={fecha}
+          onChange={(e) => setFecha(e.target.value)}
+          required
+        />
+      </div>
+      <div>
+        <label>Hora:</label>
+        <input
+          type="time"
+          value={hora}
+          onChange={(e) => setHora(e.target.value)}
+          required
+        />
+      </div>
+      <div>
+        <label>Motivo (opcional):</label>
+        <textarea value={motivo} onChange={(e) => setMotivo(e.target.value)} />
+      </div>
+      <button type="submit">Agendar Cita</button>
+    </form>
   );
-}
+};
 
-export default App;
+export default CitaForm;
