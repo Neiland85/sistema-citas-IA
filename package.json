@@ -1,0 +1,18 @@
+{
+  "name": "sistema-citas-ia",
+  "version": "1.0.0",
+  "description": "Sistema basado en IA para la gestión eficiente y responsiva de citas. Inicialmente se usa Python con Flask para el backend, facilitando una base sólida para la integración futura del frontend. Código gestionado con Git y despliegue planificado.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky install"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.1",
+    "husky": "^8.0.0"
+  }
+}
