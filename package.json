@@ -1,0 +1,19 @@
+{
+  "name": "sistema-citas-ia",
+  "version": "1.0.0",
+  "description": "Sistema basado en IA para la gestión eficiente y responsiva de citas.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Running tests...\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^9.18.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "prettier": "^3.0.0"
+  }
+}
+
