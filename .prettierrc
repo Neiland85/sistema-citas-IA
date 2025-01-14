@@ -1,0 +1,17 @@
+{
+  "semi": true,                     // Agrega punto y coma al final de cada línea.
+  "singleQuote": true,              // Usa comillas simples en lugar de dobles.
+  "tabWidth": 2,                    // Define el ancho del tabulador como 2 espacios.
+  "useTabs": false,                 // Usa espacios en lugar de tabs.
+  "trailingComma": "es5",           // Agrega comas finales donde es válido en ES5 (objetos, arrays).
+  "bracketSpacing": true,           // Agrega espacios dentro de las llaves en objetos.
+  "jsxSingleQuote": false,          // Usa comillas dobles en JSX.
+  "arrowParens": "always",          // Siempre incluye paréntesis en funciones arrow.
+  "endOfLine": "lf",                // Fuerza el uso de LF como fin de línea.
+  "printWidth": 80,                 // Máximo de caracteres por línea (ideal para legibilidad).
+  "quoteProps": "as-needed",        // Solo agrega comillas a propiedades de objetos cuando sea necesario.
+  "htmlWhitespaceSensitivity": "css", // Respeta las reglas de CSS para espacios en blanco en HTML.
+  "proseWrap": "preserve",          // Preserva los saltos de línea en textos largos.
+  "embeddedLanguageFormatting": "auto" // Formatea automáticamente los lenguajes embebidos (CSS, JS en HTML, etc.).
+}
+
