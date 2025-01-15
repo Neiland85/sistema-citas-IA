@@ -6,12 +6,15 @@ from flask_sqlalchemy import SQLAlchemy  # type: ignore
 app = Flask(__name__, static_folder='frontend/build')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///citas.db'  # Configuración para usar SQLite
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Deshabilita el seguimiento de modificaciones
+app.config['TABLES_CREATED'] = False  # Añade esta línea para usar la configuración de la aplicación
 CORS(app)  # Esto habilita CORS para que las solicitudes entre el frontend y el backend no tengan problemas de dominio cruzado
 
 # Inicializa SQLAlchemy
 db = SQLAlchemy(app)
 
 # Modelo para las citas
+from typing import Optional
+
 class Cita(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -19,7 +22,7 @@ class Cita(db.Model):
     hour = db.Column(db.String(5), nullable=False)
     reason = db.Column(db.String(200))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<Cita {self.name}, {self.date}, {self.hour}>"
 
 # Ruta para servir los archivos estáticos (frontend)
@@ -56,7 +59,7 @@ def manejar_citas():
                 return jsonify({"error": "Faltan datos requeridos"}), 400
 
             # Crear una nueva cita en la base de datos
-            new_cita = Cita(name=name, date=date, hour=hour, reason=reason) # type: ignore
+            new_cita = Cita(name=name, date=date, hour=hour, reason=reason)
             db.session.add(new_cita)
             db.session.commit()
 
@@ -70,10 +73,12 @@ def manejar_citas():
         return jsonify(citas_data), 200
 
 # Inicia la base de datos con el contexto de aplicación
-@app.before_first_request # type: ignore
+@app.before_request
 def create_tables():
-    with app.app_context():
-        db.create_all()
+    if not app.config['TABLES_CREATED']:
+        with app.app_context():
+            db.create_all()
+            app.config['TABLES_CREATED'] = True
 
 # Inicia el servidor de Flask
 if __name__ == '__main__':
