@@ -1,8 +1,26 @@
 from flask import Flask, request, jsonify, send_from_directory, abort
 from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy  # type: ignore
 
+# Inicializa Flask y configura la base de datos
 app = Flask(__name__, static_folder='frontend/build')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///citas.db'  # Configuración para usar SQLite
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Deshabilita el seguimiento de modificaciones
 CORS(app)  # Esto habilita CORS para que las solicitudes entre el frontend y el backend no tengan problemas de dominio cruzado
+
+# Inicializa SQLAlchemy
+db = SQLAlchemy(app)
+
+# Modelo para las citas
+class Cita(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    date = db.Column(db.String(20), nullable=False)
+    hour = db.Column(db.String(5), nullable=False)
+    reason = db.Column(db.String(200))
+
+    def __repr__(self):
+        return f"<Cita {self.name}, {self.date}, {self.hour}>"
 
 # Ruta para servir los archivos estáticos (frontend)
 @app.route('/')
@@ -20,26 +38,42 @@ def download_file(filename):
         abort(404, description="Upload folder not configured")
     return send_from_directory(upload_folder, filename, as_attachment=True)
 
-# Ruta para manejar la creación de citas (API)
-@app.route('/api/citas', methods=['POST'])
-def agendar_cita():
-    try:
-        data = request.get_json()  # Recoge los datos enviados desde el frontend
-        print("Datos recibidos:", data)  # Esto se imprimirá en la consola del backend
-        
-        name = data.get('name')
-        date = data.get('date')
-        hour = data.get('hour')
-        reason = data.get('reason')
+# Ruta para manejar la creación de citas (API) - Soporte tanto para GET como POST
+@app.route('/api/citas', methods=['GET', 'POST'])  # type: ignore
+def manejar_citas():
+    if request.method == 'POST':
+        try:
+            data = request.get_json()  # Recoge los datos enviados desde el frontend
+            print("Datos recibidos:", data)  # Esto se imprimirá en la consola del backend
 
-        # Aquí puedes agregar validaciones para asegurarte de que los datos no sean nulos
-        if not all([name, date, hour]):
-            return jsonify({"error": "Faltan datos requeridos"}), 400
+            name = data.get('name')
+            date = data.get('date')
+            hour = data.get('hour')
+            reason = data.get('reason')
 
-        # Aquí, podrías agregar lógica para guardar la cita en una base de datos, si es necesario.
-        return jsonify({"message": "Cita agendada correctamente", "data": data}), 201
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+            # Validar los datos
+            if not all([name, date, hour]):
+                return jsonify({"error": "Faltan datos requeridos"}), 400
+
+            # Crear una nueva cita en la base de datos
+            new_cita = Cita(name=name, date=date, hour=hour, reason=reason) # type: ignore
+            db.session.add(new_cita)
+            db.session.commit()
+
+            return jsonify({"message": "Cita agendada correctamente", "data": data}), 201
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+    elif request.method == 'GET':
+        # Obtener todas las citas desde la base de datos
+        citas = Cita.query.all()
+        citas_data = [{"name": cita.name, "date": cita.date, "hour": cita.hour, "reason": cita.reason} for cita in citas]
+        return jsonify(citas_data), 200
+
+# Inicia la base de datos con el contexto de aplicación
+@app.before_first_request # type: ignore
+def create_tables():
+    with app.app_context():
+        db.create_all()
 
 # Inicia el servidor de Flask
 if __name__ == '__main__':

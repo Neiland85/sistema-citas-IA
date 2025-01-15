@@ -5,14 +5,14 @@ const CitaForm = () => {
     nombre: '',
     fecha: '',
     hora: '',
-    motivo: ''
+    motivo: '',
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -25,7 +25,7 @@ const CitaForm = () => {
       nombre: '',
       fecha: '',
       hora: '',
-      motivo: ''
+      motivo: '',
     });
   };
 
@@ -82,4 +82,3 @@ const CitaForm = () => {
 };
 
 export default CitaForm;
-
