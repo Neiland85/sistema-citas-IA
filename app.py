@@ -56,7 +56,7 @@ def manejar_citas():
                 return jsonify({"error": "Faltan datos requeridos"}), 400
 
             # Crear una nueva cita en la base de datos
-            new_cita = Cita(name=name, date=date, hour=hour, reason=reason)
+            new_cita = Cita(name=name, date=date, hour=hour, reason=reason) # type: ignore
             db.session.add(new_cita)
             db.session.commit()
 
@@ -70,7 +70,7 @@ def manejar_citas():
         return jsonify(citas_data), 200
 
 # Inicia la base de datos con el contexto de aplicación
-@app.before_first_request  # Esto se debe seguir usando si la versión de Flask lo soporta
+@app.before_first_request # type: ignore
 def create_tables():
     with app.app_context():
         db.create_all()
