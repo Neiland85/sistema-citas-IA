@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS citas (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    date TEXT NOT NULL,
+    time TEXT NOT NULL,
+    reason TEXT
+);
