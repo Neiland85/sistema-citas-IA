@@ -5,7 +5,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Running tests...\""
+    "start": "bun run index.js",
+    "build": "bun build",
+    "test": "bun test"
   },
   "keywords": [],
   "author": "",
@@ -23,5 +25,9 @@
     "webpack": "^5.97.1",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.0"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "dotenv": "^16.0.3"
   }
 }

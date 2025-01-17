@@ -7,8 +7,8 @@
     "@babel/preset-env": "^7.26.0",
     "@babel/preset-react": "^7.26.3",
     "axios": "^1.7.9",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "web-vitals": "^4.2.4"
   },
@@ -16,7 +16,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "vercel-build": "pnpm run build"
   },
   "browserslist": {
     "production": [
@@ -37,6 +38,5 @@
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "^29.1.1",
     "prettier": "^3.4.2"
-  },
-  "proxy": "http://127.0.0.1:5000"
+  }
 }
