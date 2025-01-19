@@ -1,80 +1,106 @@
 from flask import Flask, request, jsonify, send_from_directory, abort
 from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy  # type: ignore
+from pymongo import MongoClient
+import os
+from dotenv import load_dotenv
 
-# Inicializa Flask y configura la base de datos
-app = Flask(__name__, static_folder='frontend/build')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///citas.db'  # Configuración para usar SQLite
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Deshabilita el seguimiento de modificaciones
-CORS(app)  # Esto habilita CORS para que las solicitudes entre el frontend y el backend no tengan problemas de dominio cruzado
+# Cargar variables de entorno según el entorno (desarrollo o producción)
+environment = os.getenv("FLASK_ENV", "development")
+if environment == "production":
+    load_dotenv(".env.production")
+else:
+    load_dotenv(".env")
 
-# Inicializa SQLAlchemy
-db = SQLAlchemy(app)
+# Inicializa Flask
+app = Flask(__name__, static_folder="frontend/build", static_url_path="")
+CORS(app)
 
-# Modelo para las citas
-class Cita(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    date = db.Column(db.String(20), nullable=False)
-    hour = db.Column(db.String(5), nullable=False)
-    reason = db.Column(db.String(200))
+# Configuración de MongoDB
+mongo_url = os.getenv("DATABASE_URL")
+db_name = os.getenv("MONGO_DB_NAME", "sistema_citas")  # Valor predeterminado
 
-    def __repr__(self):
-        return f"<Cita {self.name}, {self.date}, {self.hour}>"
+# Validar configuración de MongoDB
+if not mongo_url:
+    raise ValueError("DATABASE_URL no está configurada en el archivo .env.")
+if not db_name or not isinstance(db_name, str):
+    raise ValueError("MONGO_DB_NAME no está configurado correctamente en el archivo .env.")
 
-# Ruta para servir los archivos estáticos (frontend)
-@app.route('/')
+# Inicializar cliente de MongoDB
+try:
+    client = MongoClient(mongo_url)
+    db = client[db_name]
+    print(f"Conectado a la base de datos: {db_name}")
+except Exception as e:
+    print(f"Error al conectar con MongoDB: {str(e)}")
+    raise e
+
+
+@app.route("/")
 def serve():
+    """
+    Sirve la aplicación React desde la carpeta estática 'frontend/build'.
+    """
     if app.static_folder:
-        return send_from_directory(app.static_folder, 'index.html')
+        return send_from_directory(app.static_folder, "index.html")
     else:
         abort(404, description="Static folder not configured")
 
-# Ruta para manejar la subida de archivos (si es necesario)
-@app.route('/uploads/<path:filename>')
-def download_file(filename):
-    upload_folder = app.config.get('UPLOAD_FOLDER')
-    if not upload_folder:
-        abort(404, description="Upload folder not configured")
-    return send_from_directory(upload_folder, filename, as_attachment=True)
 
-# Ruta para manejar la creación de citas (API) - Soporte tanto para GET como POST
-@app.route('/api/citas', methods=['GET', 'POST'])  # type: ignore
+@app.route("/api/citas", methods=["GET", "POST"])
 def manejar_citas():
-    if request.method == 'POST':
+    """
+    Maneja las citas de la API:
+    - GET: Lista todas las citas de la base de datos.
+    - POST: Crea una nueva cita con los datos proporcionados.
+    """
+    if request.method == "POST":
         try:
-            data = request.get_json()  # Recoge los datos enviados desde el frontend
-            print("Datos recibidos:", data)  # Esto se imprimirá en la consola del backend
+            # Recoger datos enviados desde el frontend
+            data = request.get_json()
+            name = data.get("name")
+            date = data.get("date")
+            time = data.get("time")
+            reason = data.get("reason")
 
-            name = data.get('name')
-            date = data.get('date')
-            hour = data.get('hour')
-            reason = data.get('reason')
-
-            # Validar los datos
-            if not all([name, date, hour]):
+            # Validar datos obligatorios
+            if not all([name, date, time]):
                 return jsonify({"error": "Faltan datos requeridos"}), 400
 
-            # Crear una nueva cita en la base de datos
-            new_cita = Cita(name=name, date=date, hour=hour, reason=reason) # type: ignore
-            db.session.add(new_cita)
-            db.session.commit()
+            # Insertar nueva cita en la base de datos
+            collection = db["citas"]
+            cita_id = collection.insert_one({
+                "name": name,
+                "date": date,
+                "time": time,
+                "reason": reason,
+            }).inserted_id
 
-            return jsonify({"message": "Cita agendada correctamente", "data": data}), 201
+            return jsonify({"message": "Cita agendada correctamente", "cita_id": str(cita_id)}), 201
         except Exception as e:
             return jsonify({"error": str(e)}), 500
-    elif request.method == 'GET':
-        # Obtener todas las citas desde la base de datos
-        citas = Cita.query.all()
-        citas_data = [{"name": cita.name, "date": cita.date, "hour": cita.hour, "reason": cita.reason} for cita in citas]
-        return jsonify(citas_data), 200
 
-# Inicia la base de datos con el contexto de aplicación
-@app.before_first_request # type: ignore
-def create_tables():
-    with app.app_context():
-        db.create_all()
+    elif request.method == "GET":
+        try:
+            # Listar todas las citas
+            collection = db["citas"]
+            citas = list(collection.find({}, {"_id": 0}))  # Excluir el campo _id
+            return jsonify(citas), 200
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
 
-# Inicia el servidor de Flask
-if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    return jsonify({"error": "Método no permitido"}), 405
+
+
+@app.errorhandler(404)
+def not_found(error):
+    """
+    Maneja los errores de rutas no encontradas.
+    """
+    return jsonify({"error": "Ruta no encontrada"}), 404
+
+
+if __name__ == "__main__":
+    """
+    Inicia la aplicación Flask en modo debug si estamos en desarrollo.
+    """
+    app.run(debug=(environment == "development"), port=5000)

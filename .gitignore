@@ -125,6 +125,7 @@ celerybeat-schedule
 
 # General
 .env
+.env.production
 .vscode/
 *.log
 
