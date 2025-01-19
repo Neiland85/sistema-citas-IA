@@ -1,66 +1,71 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sistema de Citas IA</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
     <header>
-        <div class="container">
-            <h1>Sistema de Citas IA</h1>
-            <nav>
-                <ul>
-                    <li><a href="#inicio">Inicio</a></li>
-                    <li><a href="#citas">Citas</a></li>
-                    <li><a href="#contacto">Contacto</a></li>
-                </ul>
-            </nav>
-        </div>
+      <div class="container">
+        <h1>Sistema de Citas IA</h1>
+        <nav>
+          <ul>
+            <li><a href="#inicio">Inicio</a></li>
+            <li><a href="#citas">Citas</a></li>
+            <li><a href="#contacto">Contacto</a></li>
+          </ul>
+        </nav>
+      </div>
     </header>
 
     <main class="container">
-        <section id="inicio">
-            <h2>Bienvenido al Sistema de Citas IA</h2>
-            <p>Gestiona tus citas de manera eficiente con nuestra plataforma inteligente.</p>
-        </section>
+      <section id="inicio">
+        <h2>Bienvenido al Sistema de Citas IA</h2>
+        <p>
+          Gestiona tus citas de manera eficiente con nuestra plataforma
+          inteligente.
+        </p>
+      </section>
 
-        <section id="citas">
-            <h2>Agendar Cita</h2>
-            <form id="cita-form">
-                <input type="text" id="nombre" placeholder="Nombre" required>
-                <input type="email" id="email" placeholder="Email" required>
-                <input type="date" id="fecha" required>
-                <input type="time" id="hora" required>
-                <textarea id="motivo" placeholder="Motivo de la cita" required></textarea>
-                <button type="submit">Agendar Cita</button>
-            </form>
+      <section id="citas">
+        <h2>Agendar Cita</h2>
+        <form id="cita-form">
+          <input type="text" id="nombre" placeholder="Nombre" required />
+          <input type="email" id="email" placeholder="Email" required />
+          <input type="date" id="fecha" required />
+          <input type="time" id="hora" required />
+          <textarea
+            id="motivo"
+            placeholder="Motivo de la cita"
+            required
+          ></textarea>
+          <button type="submit">Agendar Cita</button>
+        </form>
 
-            <h2>Citas Programadas</h2>
-            <table id="citas-table">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Fecha</th>
-                        <th>Hora</th>
-                        <th>Motivo</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Las citas se agregarán dinámicamente aquí -->
-                </tbody>
-            </table>
-        </section>
+        <h2>Citas Programadas</h2>
+        <table id="citas-table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Fecha</th>
+              <th>Hora</th>
+              <th>Motivo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Las citas se agregarán dinámicamente aquí -->
+          </tbody>
+        </table>
+      </section>
 
-        <section id="contacto">
-            <h2>Contacto</h2>
-            <p>Para más información, contáctenos en: info@sistemacitasia.com</p>
-        </section>
+      <section id="contacto">
+        <h2>Contacto</h2>
+        <p>Para más información, contáctenos en: info@sistemacitasia.com</p>
+      </section>
     </main>
 
     <script src="app.js"></script>
-</body>
+  </body>
 </html>
-
-

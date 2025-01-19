@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { BACKEND_URL } from '../config';
 
 const CitaForm = ({ onCitaAdded }) => {
   const [formData, setFormData] = useState({
@@ -13,8 +14,8 @@ const CitaForm = ({ onCitaAdded }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
     }));
   };
@@ -23,16 +24,18 @@ const CitaForm = ({ onCitaAdded }) => {
     e.preventDefault();
     setError(null);
     try {
-      const response = await fetch('/api/citas', {
+      const response = await fetch(`${BACKEND_URL}/citas`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
       });
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`HTTP error status: ${response.status}`);
       }
+
       const data = await response.json();
       onCitaAdded(data);
       setFormData({
@@ -42,15 +45,15 @@ const CitaForm = ({ onCitaAdded }) => {
         hora: '',
         motivo: '',
       });
-    } catch (error) {
-      console.error('Error al agregar cita:', error);
-      setError('No se pudo agregar la cita. Por favor, intente más tarde.');
+    } catch (err) {
+      console.error('Error al agregar cita:', err);
+      setError('No se pudo agregar la cita. Por favor, inténtelo más tarde.');
     }
   };
 
   return (
-    <section id="citas" className="my-8">
-      <h2 className="text-2xl font-bold mb-4">Agendar Cita</h2>
+    <section className="my-6">
+      <h2 className="text-2xl font-bold mb-4">Agregar Cita</h2>
       {error && <p className="text-red-500 mb-4">{error}</p>}
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
@@ -59,8 +62,8 @@ const CitaForm = ({ onCitaAdded }) => {
           value={formData.nombre}
           onChange={handleChange}
           placeholder="Nombre"
-          required
           className="w-full p-2 border rounded"
+          required
         />
         <input
           type="email"
@@ -68,32 +71,32 @@ const CitaForm = ({ onCitaAdded }) => {
           value={formData.email}
           onChange={handleChange}
           placeholder="Email"
-          required
           className="w-full p-2 border rounded"
+          required
         />
         <input
           type="date"
           name="fecha"
           value={formData.fecha}
           onChange={handleChange}
-          required
           className="w-full p-2 border rounded"
+          required
         />
         <input
           type="time"
           name="hora"
           value={formData.hora}
           onChange={handleChange}
-          required
           className="w-full p-2 border rounded"
+          required
         />
         <textarea
           name="motivo"
           value={formData.motivo}
           onChange={handleChange}
           placeholder="Motivo de la cita"
-          required
           className="w-full p-2 border rounded"
+          required
         />
         <button
           type="submit"
@@ -105,6 +108,7 @@ const CitaForm = ({ onCitaAdded }) => {
     </section>
   );
 };
+
 CitaForm.propTypes = {
   onCitaAdded: PropTypes.func.isRequired,
 };

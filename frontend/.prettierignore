@@ -1,4 +1,23 @@
+# Ignorar dependencias y archivos de compilación
 node_modules/
 build/
+dist/
 public/
+
+# Ignorar configuraciones y logs
+*.log
+*.lock
+
+# Ignorar archivos de entorno
+.env
+.env.*
+
+# Ignorar directorios específicos de pruebas o configuraciones
+coverage/
+.vscode/
+.idea/
+
+# Ignorar archivos estáticos generados
+static/
+out/
 

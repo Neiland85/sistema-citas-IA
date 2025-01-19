@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
@@ -23,12 +23,14 @@ export default function Home() {
       setCitas(data);
     } catch (error) {
       console.error('Error al obtener citas:', error);
-      setError('No se pudieron cargar las citas. Por favor, intente más tarde.');
+      setError(
+        'No se pudieron cargar las citas. Por favor, intente más tarde.',
+      );
     }
   };
 
   const handleCitaAdded = (nuevaCita) => {
-    setCitas(prevCitas => [...prevCitas, nuevaCita]);
+    setCitas((prevCitas) => [...prevCitas, nuevaCita]);
   };
 
   return (
@@ -40,5 +42,3 @@ export default function Home() {
     </main>
   );
 }
-
-

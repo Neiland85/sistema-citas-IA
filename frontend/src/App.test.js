@@ -33,6 +33,6 @@ test('renders CitaForm and handles user input', async () => {
 
   // Asegurarse de que el mensaje de éxito aparece
   expect(
-    await screen.findByText(/Cita agendada correctamente/i)
+    await screen.findByText(/Cita agendada correctamente/i),
   ).toBeInTheDocument();
 });

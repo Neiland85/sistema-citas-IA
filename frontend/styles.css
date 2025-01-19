@@ -41,7 +41,9 @@ form {
   margin: 2rem auto;
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
   margin-bottom: 1rem;
   padding: 0.5rem;
   border: 1px solid #ddd;
@@ -69,7 +71,8 @@ table {
   margin-top: 2rem;
 }
 
-th, td {
+th,
+td {
   border: 1px solid #ddd;
   padding: 0.5rem;
   text-align: left;
@@ -85,7 +88,7 @@ th {
   .container {
     padding: 0 10px;
   }
-  
+
   table {
     font-size: 0.9rem;
   }
@@ -96,20 +99,21 @@ th {
     flex-direction: column;
     align-items: center;
   }
-  
+
   nav ul li {
     margin-bottom: 0.5rem;
   }
-  
+
   form {
     width: 100%;
   }
-  
+
   table {
     font-size: 0.8rem;
   }
-  
-  th, td {
+
+  th,
+  td {
     padding: 0.3rem;
   }
 }
@@ -118,18 +122,16 @@ th {
   header {
     text-align: center;
   }
-  
+
   form {
     padding: 0 1rem;
   }
-  
+
   table {
     font-size: 0.7rem;
   }
-  
+
   button {
     width: 100%;
   }
 }
-
-

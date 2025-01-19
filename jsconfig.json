@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "jsx": "react-jsx", // Permitir JSX
+    "allowJs": true, // Permitir archivos JS
+    "checkJs": false,
+    "baseUrl": "./src", // Opcional: para alias en importaciones
+    "paths": {
+      "*": ["*"]
+    }
+  },
+  "exclude": ["node_modules", "build"]
+}
+
