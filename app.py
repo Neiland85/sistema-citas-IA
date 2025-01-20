@@ -1,106 +1,81 @@
-from flask import Flask, request, jsonify, send_from_directory, abort
-from flask_cors import CORS
+from flask import Flask, request, jsonify
 from pymongo import MongoClient
 import os
-from dotenv import load_dotenv
 
-# Cargar variables de entorno según el entorno (desarrollo o producción)
-environment = os.getenv("FLASK_ENV", "development")
-if environment == "production":
-    load_dotenv(".env.production")
-else:
-    load_dotenv(".env")
+app = Flask(__name__)
 
-# Inicializa Flask
-app = Flask(__name__, static_folder="frontend/build", static_url_path="")
-CORS(app)
+# Conexión a la base de datos
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise EnvironmentError("DATABASE_URL no está configurada. Verifica tu archivo .env")
 
-# Configuración de MongoDB
-mongo_url = os.getenv("DATABASE_URL")
-db_name = os.getenv("MONGO_DB_NAME", "sistema_citas")  # Valor predeterminado
-
-# Validar configuración de MongoDB
-if not mongo_url:
-    raise ValueError("DATABASE_URL no está configurada en el archivo .env.")
-if not db_name or not isinstance(db_name, str):
-    raise ValueError("MONGO_DB_NAME no está configurado correctamente en el archivo .env.")
-
-# Inicializar cliente de MongoDB
 try:
-    client = MongoClient(mongo_url)
-    db = client[db_name]
-    print(f"Conectado a la base de datos: {db_name}")
+    client = MongoClient(DATABASE_URL)
+    db = client["sistema-citas"]
+    collection = db["citas"]
+    print("Conexión exitosa a la base de datos")
 except Exception as e:
-    print(f"Error al conectar con MongoDB: {str(e)}")
-    raise e
+    print(f"Error al conectar a la base de datos: {e}")
+    raise
 
+# Ruta raíz
+@app.route('/')
+def home():
+    return jsonify({"message": "Bienvenido al sistema de gestión de citas"}), 200
 
-@app.route("/")
-def serve():
-    """
-    Sirve la aplicación React desde la carpeta estática 'frontend/build'.
-    """
-    if app.static_folder:
-        return send_from_directory(app.static_folder, "index.html")
-    else:
-        abort(404, description="Static folder not configured")
+# Ruta para agendar una cita
+@app.route('/api/citas', methods=['POST'])
+def agendar_cita():
+    try:
+        data = request.get_json()
+        name = data.get("name")
+        date = data.get("date")
+        time = data.get("time")
+        reason = data.get("reason")
 
+        # Asignar prioridad automática basada en el motivo
+        if reason and "dolor de pecho" in reason.lower():
+            priority = "urgente"
+        elif reason and "chequeo general" in reason.lower():
+            priority = "normal"
+        else:
+            priority = data.get("priority", "normal")  # Valor por defecto si no se especifica o no coincide
 
-@app.route("/api/citas", methods=["GET", "POST"])
-def manejar_citas():
-    """
-    Maneja las citas de la API:
-    - GET: Lista todas las citas de la base de datos.
-    - POST: Crea una nueva cita con los datos proporcionados.
-    """
-    if request.method == "POST":
-        try:
-            # Recoger datos enviados desde el frontend
-            data = request.get_json()
-            name = data.get("name")
-            date = data.get("date")
-            time = data.get("time")
-            reason = data.get("reason")
+        # Validar datos obligatorios
+        if not all([name, date, time]):
+            return jsonify({"error": "Faltan datos obligatorios"}), 400
 
-            # Validar datos obligatorios
-            if not all([name, date, time]):
-                return jsonify({"error": "Faltan datos requeridos"}), 400
+        # Crear cita y almacenarla en la base de datos
+        cita = {
+            "name": name,
+            "date": date,
+            "time": time,
+            "reason": reason,
+            "priority": priority  # Almacena la prioridad calculada
+        }
+        result = collection.insert_one(cita)
+        return jsonify({"message": "Cita agendada correctamente", "cita_id": str(result.inserted_id)}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-            # Insertar nueva cita en la base de datos
-            collection = db["citas"]
-            cita_id = collection.insert_one({
-                "name": name,
-                "date": date,
-                "time": time,
-                "reason": reason,
-            }).inserted_id
+# Ruta para obtener todas las citas ordenadas
+@app.route('/api/citas', methods=['GET'])
+def obtener_citas():
+    try:
+        # Obtener citas ordenadas por prioridad, fecha y hora
+        citas = list(collection.find({}, {"_id": 0}).sort([("priority", -1), ("date", 1), ("time", 1)]))
+        return jsonify(citas), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-            return jsonify({"message": "Cita agendada correctamente", "cita_id": str(cita_id)}), 201
-        except Exception as e:
-            return jsonify({"error": str(e)}), 500
+# Ruta para eliminar todas las citas (opcional, para pruebas)
+@app.route('/api/citas', methods=['DELETE'])
+def eliminar_todas_las_citas():
+    try:
+        result = collection.delete_many({})
+        return jsonify({"message": f"Se eliminaron {result.deleted_count} citas"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-    elif request.method == "GET":
-        try:
-            # Listar todas las citas
-            collection = db["citas"]
-            citas = list(collection.find({}, {"_id": 0}))  # Excluir el campo _id
-            return jsonify(citas), 200
-        except Exception as e:
-            return jsonify({"error": str(e)}), 500
-
-    return jsonify({"error": "Método no permitido"}), 405
-
-
-@app.errorhandler(404)
-def not_found(error):
-    """
-    Maneja los errores de rutas no encontradas.
-    """
-    return jsonify({"error": "Ruta no encontrada"}), 404
-
-
-if __name__ == "__main__":
-    """
-    Inicia la aplicación Flask en modo debug si estamos en desarrollo.
-    """
-    app.run(debug=(environment == "development"), port=5000)
+if __name__ == '__main__':
+    app.run(debug=True)

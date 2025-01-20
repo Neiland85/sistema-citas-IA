@@ -1,0 +1,6 @@
+FLASK_APP=app.py
+FLASK_ENV=development
+DATABASE_URL = "mongodb+srv://Neiland85:SecurePassword123@cluster-sistema-citas-i.svhea.mongodb.net/sistema-citas?retryWrites=true&w=majority"
+MONGO_DB_NAME=sistema-citas
+BACKEND_URL=https://v0-sistema-citas-ia-evcr9ynzoxh.vercel.app/api/citas
+
